@@ -19,9 +19,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from icw import icw_index
 import pandas as pd
 
-FLOAT_TOL = 1e-6 # tolerance for floating point comparisons or just language differences
-
-
+FLOAT_TOL = 1e-6  # tolerance for floating point comparisons or just language differences
 
 df = pd.read_csv('test_datasets.csv')
 
@@ -30,7 +28,6 @@ df = pd.read_csv('test_datasets.csv')
 stata_results = pd.read_csv('swindex_results.csv')
 stata_results.columns = ['dataset_id', 'index_value']
 stata_results['obs_id'] = stata_results.groupby('dataset_id').cumcount()
-
 
 # Compute indices my way
 ##############################################
@@ -53,18 +50,16 @@ mydf = pd.DataFrame(my_results)
 merged = stata_results.merge(
     mydf,
     on=['dataset_id', 'obs_id'],
-    suffixes=('_stata', '_yours')
+    suffixes=('_stata', '_mine')
 )
-
 
 # Calculate statistics
 print("Comparing swindex frm stata to icw_index from icw.py")
 print("Across {} datasets and {} observations:".format(len(merged['dataset_id'].unique()), len(merged)))
-correlation = merged['index_value_stata'].corr(merged['index_value_yours'])
-diff = merged['index_value_stata'] - merged['index_value_yours']
+correlation = merged['index_value_stata'].corr(merged['index_value_mine'])
+diff = merged['index_value_stata'] - merged['index_value_mine']
 print(f"Correlation: {correlation:.15f}")
 print(f"Number of differences > {FLOAT_TOL}: {(diff.abs() > FLOAT_TOL).sum()}")
 print(f"Max absolute difference: {diff.abs().max():.2e}")
 print(f"Median absolute difference: {diff.abs().median():.2e}")
 print(f"Mean absolute difference: {diff.abs().mean():.2e}")
-
