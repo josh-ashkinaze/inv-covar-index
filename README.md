@@ -7,19 +7,25 @@ A Python implementation of the Inverse-Covariance Weighted (ICW) Index introduce
 ```python
 import numpy as np
 import pandas as pd
-from icw import icw_index # or just copy-paste the icw_index function directly from icw.py
+from icw import icw_index # or just copy-paste this function
 
-# Example 1: From Numpy arrays
+# Example using numpy arrays
 x1 = np.random.rand(100)
 x2 = np.random.rand(100)
 index = icw_index([x1, x2])
 
-# Example 2: From Pandas DataFrame columns
-df = pd.DataFrame({
-    'var1': np.random.rand(100), 
-    'var2': np.random.rand(100)
-})
-df['icw'] = icw_index([df['var1'].values, df['var2'].values])
+# Example using Pandas dataframes and reference group normalization
+df = pd.DataFrame({'var1': np.random.rand(100),
+                    'var2': np.random.rand(100),
+                    'treat': np.random.randint(0, 2, size=100)})
+ref_mask = (df['treat'] == 0).values
+
+# Full sample normalization, no reference group. Entire index is distributed M=0, SD=1
+df['icw'] = icw_index([df['var1'].values, df['var2'].values]) 
+
+# User-specified reference group normalization. Control group is distributed M=0, SD=1 and treatment group is relative to that.
+df['icw_control_reference'] = icw_index([df['var1'].values, df['var2'].values],
+                                 reference_mask=ref_mask) 
 ```
 
 ## What is the ICW Index?
@@ -51,26 +57,34 @@ We can calculate the standardized weighted index $\tilde{s}$ for each observatio
 I validated this implementation against Stata's `swindex` (version 14) using 100 synthetic datasets:
 
 - **Datasets**: 100 datasets with 5 variables each
-- **Sample sizes**: 100-1000 observations per dataset  
-- **Total observations**: 13,861
+- **Sample sizes**: 500-2000 observations per dataset  
+- **Total observations**: 122,444
 - **Variables**: Standard normal distribution, no missing data
 
 ### Results
 
-- **Correlation**: 0.999999999999999
-- **Differences > 1e-06**: 0
-- **Max absolute difference**: 2.42e-07
-- **Median absolute difference**: 2.88e-08
-- **Mean absolute difference**: 3.71e-08
+Results are identical (within a floating point tolerance) to Stata's `swindex` implementation. Here are the two
+options I tested. 
 
-The results are effectively identical to Stata's implementation, within floating point precision limits.
+1. **Default settings** (full sample as reference group)
+- Correlation: 0.999999999999996
+- Differences > 1e-06: 0
+- Max absolute difference: 3.08e-07
+- Median absolute difference: 3.01e-08
+- Mean absolute difference: 3.88e-08
+
+2. **User-specified reference group** (using the control group as reference)
+- Correlation: 1.000000000000000
+- Differences > 1e-06: 0
+- Max absolute difference: 3.31e-07
+- Median absolute difference: 2.94e-08
+- Mean absolute difference: 3.77e-08
 
 ## Limitations
 
 This implementation is simpler than `swindex` and has the following restrictions:
 
 - **No missing data**: Input arrays must not contain NaN values
-- **Full sample reference**: Always uses the full dataset as the reference group
 - **User handles sign orientation**: Assumes input data is already oriented so higher values indicate better outcomes
 - **Report bugs**: I imagine I missed some edge cases. Feel free to report bugs. 
 
@@ -100,5 +114,5 @@ If you use this implementation in your work, please cite:
 Please open an issue if you find any bugs or edge cases.
 
 ## ToDos
-- Add option for user-specified reference group as in Schwab et al. (2020)
+- Add option for user-specified reference group as in Schwab et al. (2020) [DONE]
 - Add handling for missing data as in Schwab et al. (2020)
