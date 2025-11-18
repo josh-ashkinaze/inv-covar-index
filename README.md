@@ -14,16 +14,16 @@ x1 = np.random.rand(100)
 x2 = np.random.rand(100)
 index = icw_index([x1, x2])
 
-# Example using Pandas dataframes and reference group normalization
+# Example using Pandas dataframes 
 df = pd.DataFrame({'var1': np.random.rand(100),
                     'var2': np.random.rand(100),
                     'treat': np.random.randint(0, 2, size=100)})
-ref_mask = (df['treat'] == 0).values
 
 # Full sample normalization, no reference group. Entire index is distributed M=0, SD=1
 df['icw'] = icw_index([df['var1'].values, df['var2'].values]) 
 
 # User-specified reference group normalization. Control group is distributed M=0, SD=1 and treatment group is relative to that.
+ref_mask = (df['treat'] == 0).values
 df['icw_control_reference'] = icw_index([df['var1'].values, df['var2'].values],
                                  reference_mask=ref_mask) 
 ```
@@ -89,7 +89,7 @@ This implementation is simpler than `swindex` and has the following restrictions
 - **Report bugs**: I imagine I missed some edge cases. Feel free to report bugs. 
 
 ## System I Ran Tests On
-I was using Python 3.13, `requirements.txt` packages, MacOS, and Stata 19.5 for testing.
+I was using Python 3.13, `dev_requirements.txt` packages, MacOS, and Stata 19.5 for testing.
 
 ## References
 
