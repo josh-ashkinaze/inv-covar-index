@@ -20,13 +20,17 @@ pip install icw-index
 ```
 
 ## Usage
+It is a function, `icw_index` that has two arguments:
+- `index_vars`: A list of length `N` numpy arrays, each containing one variable to include in the index. All arrays must be the same length.
+- `reference_mask`: (optional) A boolean numpy array of the same length as the index variables, indicating which observations to use as the reference group for normalization. If not provided, the full sample is used (which is the default in STATA `swindex`)
+
+And `icw_index` returns a numpy array of length `N` ICW index values. ICW index values are normalized to have mean 0 and standard deviation 1 either
+across the full sample (default) or within the reference group (if `reference_mask` is provided).
 
 ### Basic example with numpy arrays
 
 
-Here, `index` will be a numpy array of length `n` containing the ICW index values, which have mean 0 and SD of 1. ICW values
-can be interpreted as z-scores. 
-
+Let's generate some synthetic data first. 
 ```python
 import numpy as np
 import pandas as pd
@@ -36,7 +40,12 @@ n = 200
 x1 = np.random.normal(loc=2, scale=10, size=n)
 x2 = np.random.normal(loc=0.5, scale=4, size=n)
 x3 = np.random.normal(loc=-0.2, scale=1, size=n)
+```
 
+Here, `index` will be a numpy array of length `n` containing the ICW index values, which have mean 0 and SD of 1. ICW values
+can be interpreted as z-scores. 
+
+```python
 index = icw_index([x1, x2, x3])
 print(f"shape={index.shape}, mean={index.mean():.1e}, std={index.std():.1e}")
 # shape=(200,), mean=-1.3e-17, std=1.0e+00
