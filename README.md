@@ -54,7 +54,7 @@ df = pd.DataFrame({'var1': np.random.rand(100),
                    'treat': np.random.randint(0, 2, size=100)})
 
 # Full sample normalization, no reference group. Entire index is distributed M=0, SD=1
-df['icw'] = icw_index([df['var1'].values, df['var2'].values], df['var3'].values)
+df['icw'] = icw_index([df['var1'].values, df['var2'].values, df['var3'].values])
 ```
 
 ### Using a reference group for normalization
@@ -74,12 +74,11 @@ df = pd.DataFrame({'var1': np.random.rand(100),
 for vars in ['var1', 'var2']:
     df[vars] = df[vars] + 0.5 * df['treat']
 
+# Full sample normalization
 index_vars = ['var1', 'var2', 'var3']
-
-# Normal ICW---full sample normalization
 df['icw'] = icw_index([df[x].values for x in index_vars])
 
-# Let's normalize to control group only
+# Control group normalization
 ref_mask = (df['treat'] == 0).values
 df['icw_control_reference'] = icw_index(
     [df[x].values for x in index_vars],
