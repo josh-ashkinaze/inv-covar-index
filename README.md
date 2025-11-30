@@ -29,8 +29,6 @@ across the full sample (default) or within the reference group (if `reference_ma
 
 ### Basic example with numpy arrays
 
-
-Let's generate some synthetic data first. 
 ```python
 import numpy as np
 import pandas as pd
@@ -40,19 +38,13 @@ n = 200
 x1 = np.random.normal(loc=2, scale=10, size=n)
 x2 = np.random.normal(loc=0.5, scale=4, size=n)
 x3 = np.random.normal(loc=-0.2, scale=1, size=n)
-```
 
-Here, `index` will be a numpy array of length `n` containing the ICW index values, which have mean 0 and SD of 1. ICW values
-can be interpreted as z-scores. 
-
-```python
-index = icw_index([x1, x2, x3])
-print(f"shape={index.shape}, mean={index.mean():.1e}, std={index.std():.1e}")
+index = icw_index([x1, x2, x3]) # Will be  mean ~0, SD ~1 across full sample
+print(f"shape={index.shape}, mean={index.mean():.1e}, std={index.std():.1e}") # Verify
 # shape=(200,), mean=-1.3e-17, std=1.0e+00
 ```
 
 ### Basic example with Pandas DataFrame
-The column `icw` now contains the ICW index values, normalized to have mean 0 and standard deviation 1 across the full sample.
 
 ``` python
 # Example using Pandas dataframes 
@@ -67,7 +59,7 @@ df['icw'] = icw_index([df['var1'].values, df['var2'].values], df['var3'].values)
 
 ### Using a reference group for normalization
 Now let's say we want to use the control group (where `treat == 0`) as the reference group for normalization instead of a full sample. We can do that by passing a boolean mask to the `reference_mask` argument.
-This will mean that the ICW index is mean 0 and SD 1 for the control group, and treatment ICW values can be interpreted as effect sizes relative to the control group.
+This will mean that the ICW index is mean 0 and SD 1 for the control group, and treatment ICW values can be interpreted as effect sizes relative to the control group. See `Implementation Details` below for more info.
 ```python
 import numpy as np
 import pandas as pd
